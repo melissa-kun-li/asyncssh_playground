@@ -36,12 +36,9 @@ class SSHConnection:
             print('Log content:')
             print(log_content)
 
-    async def get_ssh_connection(self):
+    async def execute_command(self, cmd, stdin=None):
         if self.connection is None:
             self.connection = await self._remote_connection()
-        return self.connection
-
-    async def execute_command(self, cmd, stdin=None):
         conn = self.connection
         r = await conn.run(cmd, input=stdin.encode() if stdin else None)
         # print(r.stdout)
@@ -53,13 +50,11 @@ class SSHConnection:
         return out, err, r.returncode
 
     def do_something(self):
-        asyncio.get_event_loop().run_until_complete(self.get_ssh_connection())
         asyncio.get_event_loop().run_until_complete(self.execute_command('echo foo'))
         
     def do_something_else(self):
-        asyncio.get_event_loop().run_until_complete(self.get_ssh_connection())
         asyncio.get_event_loop().run_until_complete(self.execute_command('echo melissa'))
-        asyncio.get_event_loop().run_until_complete(self.execute_command('ls doesntexist'))
+        asyncio.get_event_loop().run_until_complete(self.execute_command('ls doesntexist')) # returncode = 1
 
 def main():
     a = SSHConnection()
